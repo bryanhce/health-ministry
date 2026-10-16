@@ -1,0 +1,116 @@
+import { NextResponse } from 'next/server';
+import { HeadacheService } from '@/backend/headache/service/headache.service';
+import {
+  createHeadacheSchema,
+  updateHeadacheSchema,
+  idParamSchema,
+} from '@/backend/headache/controller/headache.dto';
+import { AppError, HTTP_STATUS } from '@/backend/shared/errors/AppError';
+import { ZodError } from 'zod';
+
+export class HeadacheController {
+  private service: HeadacheService;
+
+  constructor(service?: HeadacheService) {
+    this.service = service ?? new HeadacheService();
+  }
+
+  async list(): Promise<NextResponse> {
+    try {
+      const entries = await this.service.getAllEntries();
+      return NextResponse.json({ data: entries }, { status: HTTP_STATUS.OK });
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getById(id: string): Promise<NextResponse> {
+    try {
+      const parsedId = idParamSchema.parse(id);
+      const entry = await this.service.getEntryById(parsedId);
+      return NextResponse.json({ data: entry }, { status: HTTP_STATUS.OK });
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async create(req: Request): Promise<NextResponse> {
+    try {
+      const body = await req.json();
+      const validatedData = createHeadacheSchema.parse(body);
+      const created = await this.service.createEntry(validatedData);
+      return NextResponse.json({ data: created }, { status: HTTP_STATUS.CREATED });
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async update(id: string, req: Request): Promise<NextResponse> {
+    try {
+      const parsedId = idParamSchema.parse(id);
+      const body = await req.json();
+      const validatedData = updateHeadacheSchema.parse(body);
+      const updated = await this.service.updateEntry(parsedId, validatedData);
+      return NextResponse.json({ data: updated }, { status: HTTP_STATUS.OK });
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async delete(id: string): Promise<NextResponse> {
+    try {
+      const parsedId = idParamSchema.parse(id);
+      await this.service.deleteEntry(parsedId);
+      return new NextResponse(null, { status: HTTP_STATUS.NO_CONTENT });
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async seed(): Promise<NextResponse> {
+    try {
+      const result = await this.service.seedEntries();
+      return NextResponse.json(
+        {
+          message: `Successfully seeded ${result.count} realistic headache entries.`,
+          data: result.entries,
+        },
+        { status: HTTP_STATUS.CREATED },
+      );
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  private handleError(error: unknown): NextResponse {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: {
+            message: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            details: error.flatten().fieldErrors,
+          },
+        },
+        { status: HTTP_STATUS.BAD_REQUEST },
+      );
+    }
+
+    if (error instanceof AppError) {
+      return NextResponse.json(error.toJSON(), { status: error.statusCode });
+    }
+
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+    return NextResponse.json(
+      {
+        error: {
+          message,
+          code: 'INTERNAL_SERVER_ERROR',
+        },
+      },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR },
+    );
+  }
+}
+
+export const headacheController = new HeadacheController();
