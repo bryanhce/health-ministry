@@ -3,11 +3,15 @@ import { HeadacheEntryDTO } from '@/frontend/domain/headache.types';
 import { HeadacheCard } from '@/frontend/components/headache/HeadacheCard';
 import { HeadacheTable } from '@/frontend/components/headache/HeadacheTable';
 import { Button } from '@/frontend/components/ui/Button';
-import { Activity, Plus, Sparkles } from 'lucide-react';
+import { Activity, ChevronDown, Plus, Sparkles } from 'lucide-react';
 
 export interface EntriesFeedProps {
   entries: HeadacheEntryDTO[];
+  totalCount: number;
+  hasMore: boolean;
   isLoading: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
   onEdit: (entry: HeadacheEntryDTO) => void;
   onDelete: (id: string) => void;
   onOpenLogModal: () => void;
@@ -17,7 +21,11 @@ export interface EntriesFeedProps {
 
 export function EntriesFeed({
   entries,
+  totalCount,
+  hasMore,
   isLoading,
+  isLoadingMore = false,
+  onLoadMore,
   onEdit,
   onDelete,
   onOpenLogModal,
@@ -78,6 +86,8 @@ export function EntriesFeed({
     );
   }
 
+  const displayedCount = entries.length;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -86,7 +96,9 @@ export function EntriesFeed({
             Logged Episodes
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Showing {entries.length} recorded {entries.length === 1 ? 'episode' : 'episodes'}
+            {hasMore || displayedCount < totalCount
+              ? `Showing ${displayedCount} of ${totalCount} recorded ${totalCount === 1 ? 'episode' : 'episodes'}`
+              : `Showing ${totalCount} recorded ${totalCount === 1 ? 'episode' : 'episodes'}`}
           </p>
         </div>
       </div>
@@ -111,6 +123,24 @@ export function EntriesFeed({
           onDelete={onDelete}
         />
       </div>
+
+      {/* Backend-Driven Pagination: Load More Button */}
+      {hasMore && (
+        <div className="flex flex-col items-center justify-center pt-2 gap-2">
+          <Button
+            variant="outline"
+            onClick={onLoadMore}
+            isLoading={isLoadingMore}
+            rightIcon={!isLoadingMore ? <ChevronDown className="w-4 h-4" /> : undefined}
+            className="w-full sm:w-auto min-w-[180px] font-semibold text-xs sm:text-sm shadow-xs hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+          >
+            Load More
+          </Button>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            Showing {displayedCount} of {totalCount} episodes
+          </span>
+        </div>
+      )}
     </div>
   );
 }

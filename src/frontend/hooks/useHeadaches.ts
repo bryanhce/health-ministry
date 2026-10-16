@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   createEntry,
   deleteEntry,
@@ -9,8 +10,11 @@ import {
 import { CreateHeadacheInput, UpdateHeadacheInput } from '@/frontend/domain/headache.types';
 import { DASHBOARD_QUERY_KEYS } from '@/frontend/hooks/useDashboardStats';
 
+export const HEADACHE_PAGINATION_LIMIT = 10;
+
 export const HEADACHE_QUERY_KEYS = {
   all: ['headaches'] as const,
+  infinite: () => [...HEADACHE_QUERY_KEYS.all, 'infinite'] as const,
   lists: () => [...HEADACHE_QUERY_KEYS.all, 'list'] as const,
   detail: (id: string) => [...HEADACHE_QUERY_KEYS.all, 'detail', id] as const,
 } as const;
@@ -18,10 +22,26 @@ export const HEADACHE_QUERY_KEYS = {
 export function useHeadaches() {
   const queryClient = useQueryClient();
 
-  const entriesQuery = useQuery({
-    queryKey: HEADACHE_QUERY_KEYS.lists(),
-    queryFn: fetchEntries,
+  const infiniteQuery = useInfiniteQuery({
+    queryKey: HEADACHE_QUERY_KEYS.infinite(),
+    queryFn: ({ pageParam = 0 }) =>
+      fetchEntries({ limit: HEADACHE_PAGINATION_LIMIT, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.hasMore) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return undefined;
+    },
   });
+
+  const entries = useMemo(() => {
+    return infiniteQuery.data?.pages.flatMap((page) => page.data) ?? [];
+  }, [infiniteQuery.data]);
+
+  const totalCount = infiniteQuery.data?.pages[0]?.pagination.total ?? 0;
+  const hasMore = !!infiniteQuery.hasNextPage;
+  const isFetchingNextPage = infiniteQuery.isFetchingNextPage;
 
   const invalidateData = async () => {
     await Promise.all([
@@ -52,11 +72,15 @@ export function useHeadaches() {
   });
 
   return {
-    entries: entriesQuery.data ?? [],
-    isLoading: entriesQuery.isLoading,
-    isError: entriesQuery.isError,
-    error: entriesQuery.error,
-    refetch: entriesQuery.refetch,
+    entries,
+    totalCount,
+    hasMore,
+    isFetchingNextPage,
+    loadMore: () => infiniteQuery.fetchNextPage(),
+    isLoading: infiniteQuery.isLoading,
+    isError: infiniteQuery.isError,
+    error: infiniteQuery.error,
+    refetch: infiniteQuery.refetch,
     createEntry: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
     updateEntry: updateMutation.mutateAsync,

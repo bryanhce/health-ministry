@@ -17,7 +17,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="h-28 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl animate-pulse"
+            className="h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl animate-pulse"
           />
         ))}
       </div>
@@ -45,7 +45,6 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
         <StatCard
           title="3-Mo Avg Pain"
           value={avgPain > 0 ? `${avgPain}` : '0'}
-          badge={avgPain > 0 ? <PainBadge severity={Math.round(avgPain)} size="sm" /> : undefined}
           subtitle="Out of 10 scale"
           icon={<Flame className="w-5 h-5 text-amber-600" />}
           iconBgColor="bg-amber-50 dark:bg-amber-950/50"

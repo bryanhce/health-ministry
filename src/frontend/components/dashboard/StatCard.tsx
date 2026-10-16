@@ -25,12 +25,10 @@ export function StatCard({
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {title}
           </span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {value}
-            </span>
-            {badge}
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+            {value}
           </div>
+          {badge && <div className="pt-0.5">{badge}</div>}
           {subtitle && (
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               {subtitle}

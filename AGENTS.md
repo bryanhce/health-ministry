@@ -1,5 +1,13 @@
 # Frontend
 
+## Stack
+- **Framework:** React 19 with Next 15
+- **Language:** TypeScript 5.9 (Strict mode enabled)
+- **Styling:** Tailwind CSS v4 
+- **Data Fetching & Server State:** TanStack Query v5
+- **Package Manager:** npm
+
+
 ## Architecture & Module Conventions
 
 ### 1. Imports & Path Aliases
@@ -51,17 +59,14 @@
 
 ---
 
-## Testing Conventions
-- **Given-When-Then Naming:** Name all test cases using the `given [precondition], when [action], then [expected outcome]` format.
-  - *Example:* `it('given an unauthenticated user, when clicking the checkout button, then redirects to the login page', () => { ... })`
-- Test user-visible behavior and rendered output rather than internal implementation details.
+**No Test Cases Needed:** No test cases are needed or required for this project. Do not write, generate, or maintain unit, integration, or end-to-end test files.
 
 ---
 
 ## Post-Task Checklist (Mandatory)
 Before marking any task as complete, you **must**:
 1. Verify that no `useEffect` hooks, relative parent imports (`../`), or magic strings/numbers were introduced.
-2. Run type-checking and tests to ensure zero regressions.
+2. Run type-checking (`npm run typecheck`) to ensure zero regressions (no tests needed).
 3. **Update Documentation:** Update `README.md` or `AGENTS.md` whenever architectural patterns, scripts, environment variables, or project conventions change.
 
 # Backend

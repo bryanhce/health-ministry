@@ -1,5 +1,5 @@
 import { Between, Repository } from 'typeorm';
-import { HeadacheEntry } from '@/backend/headache/entity/HeadacheEntry';
+import { HeadacheEntry, HeadacheEntrySchema } from '@/backend/headache/entity/HeadacheEntry';
 import { IHeadacheRepository } from '@/backend/headache/repository/IHeadacheRepository';
 import { getDataSource } from '@/backend/config/dataSource';
 
@@ -10,7 +10,9 @@ export class TypeORMHeadacheRepository implements IHeadacheRepository {
     if (repository) {
       this.repositoryPromise = Promise.resolve(repository);
     } else {
-      this.repositoryPromise = getDataSource().then((ds) => ds.getRepository(HeadacheEntry));
+      this.repositoryPromise = getDataSource().then((ds) =>
+        ds.getRepository<HeadacheEntry>(HeadacheEntrySchema),
+      );
     }
   }
 
@@ -26,6 +28,19 @@ export class TypeORMHeadacheRepository implements IHeadacheRepository {
         createdAt: 'DESC',
       },
     });
+  }
+
+  async findPaginated(limit: number, offset: number): Promise<{ entries: HeadacheEntry[]; total: number }> {
+    const repo = await this.getRepo();
+    const [entries, total] = await repo.findAndCount({
+      order: {
+        date: 'DESC',
+        createdAt: 'DESC',
+      },
+      take: limit,
+      skip: offset,
+    });
+    return { entries, total };
   }
 
   async findById(id: string): Promise<HeadacheEntry | null> {

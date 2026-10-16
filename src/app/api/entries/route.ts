@@ -2,8 +2,8 @@ import { headacheController } from '@/backend/headache/controller/headache.contr
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(): Promise<Response> {
-  return headacheController.list();
+export async function GET(req: Request): Promise<Response> {
+  return headacheController.list(req);
 }
 
 export async function POST(req: Request): Promise<Response> {

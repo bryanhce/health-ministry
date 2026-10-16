@@ -4,6 +4,8 @@ import {
   createHeadacheSchema,
   updateHeadacheSchema,
   idParamSchema,
+  paginationQuerySchema,
+  PAGINATION_DEFAULTS,
 } from '@/backend/headache/controller/headache.dto';
 import { AppError, HTTP_STATUS } from '@/backend/shared/errors/AppError';
 import { ZodError } from 'zod';
@@ -15,10 +17,36 @@ export class HeadacheController {
     this.service = service ?? new HeadacheService();
   }
 
-  async list(): Promise<NextResponse> {
+  async list(req?: Request): Promise<NextResponse> {
     try {
-      const entries = await this.service.getAllEntries();
-      return NextResponse.json({ data: entries }, { status: HTTP_STATUS.OK });
+      let limit: number = PAGINATION_DEFAULTS.DEFAULT_LIMIT;
+      let offset: number = PAGINATION_DEFAULTS.DEFAULT_OFFSET;
+
+      if (req?.url) {
+        const url = new URL(req.url);
+        const queryParams = {
+          limit: url.searchParams.get('limit') ?? undefined,
+          offset: url.searchParams.get('offset') ?? undefined,
+        };
+        const parsed = paginationQuerySchema.parse(queryParams);
+        limit = parsed.limit;
+        offset = parsed.offset;
+      }
+
+      const result = await this.service.getPaginatedEntries({ limit, offset });
+
+      return NextResponse.json(
+        {
+          data: result.entries,
+          pagination: {
+            total: result.total,
+            limit: result.limit,
+            offset: result.offset,
+            hasMore: result.hasMore,
+          },
+        },
+        { status: HTTP_STATUS.OK },
+      );
     } catch (error) {
       return this.handleError(error);
     }

@@ -45,5 +45,26 @@ export const updateHeadacheSchema = createHeadacheSchema.partial();
 
 export const idParamSchema = z.string().uuid({ message: 'Invalid ID: must be a valid UUID' });
 
+export const PAGINATION_DEFAULTS = {
+  DEFAULT_LIMIT: 10,
+  DEFAULT_OFFSET: 0,
+  MAX_LIMIT: 100,
+} as const;
+
+export const paginationQuerySchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(PAGINATION_DEFAULTS.MAX_LIMIT)
+    .default(PAGINATION_DEFAULTS.DEFAULT_LIMIT),
+  offset: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .default(PAGINATION_DEFAULTS.DEFAULT_OFFSET),
+});
+
 export type CreateHeadacheDTO = z.infer<typeof createHeadacheSchema>;
 export type UpdateHeadacheDTO = z.infer<typeof updateHeadacheSchema>;
+export type PaginationQueryDTO = z.infer<typeof paginationQuerySchema>;

@@ -24,6 +24,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             error
               ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-400/40'
               : 'border-slate-300 dark:border-slate-700 focus:border-teal-500 focus:ring-teal-500/30'
+          } ${
+            props.type === 'date'
+              ? '[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_invert(1)]'
+              : ''
           } ${className}`}
           {...props}
         />

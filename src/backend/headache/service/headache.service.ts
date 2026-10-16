@@ -1,6 +1,10 @@
 import { IHeadacheRepository } from '@/backend/headache/repository/IHeadacheRepository';
 import { TypeORMHeadacheRepository } from '@/backend/headache/repository/TypeORMHeadacheRepository';
-import { CreateHeadacheDTO, UpdateHeadacheDTO } from '@/backend/headache/controller/headache.dto';
+import {
+  CreateHeadacheDTO,
+  UpdateHeadacheDTO,
+  PaginationQueryDTO,
+} from '@/backend/headache/controller/headache.dto';
 import { NotFoundError, ValidationError } from '@/backend/shared/errors/AppError';
 import { HeadacheEntry } from '@/backend/headache/entity/HeadacheEntry';
 
@@ -13,6 +17,26 @@ export class HeadacheService {
 
   async getAllEntries(): Promise<HeadacheEntry[]> {
     return this.repository.findAll();
+  }
+
+  async getPaginatedEntries(params: PaginationQueryDTO): Promise<{
+    entries: HeadacheEntry[];
+    total: number;
+    hasMore: boolean;
+    limit: number;
+    offset: number;
+  }> {
+    const { limit, offset } = params;
+    const { entries, total } = await this.repository.findPaginated(limit, offset);
+    const hasMore = offset + entries.length < total;
+
+    return {
+      entries,
+      total,
+      hasMore,
+      limit,
+      offset,
+    };
   }
 
   async getEntryById(id: string): Promise<HeadacheEntry> {

@@ -10,6 +10,18 @@ export interface HeadacheEntryDTO {
   updatedAt: string;
 }
 
+export interface PaginationMetadata {
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+export interface PaginatedHeadacheEntriesResponse {
+  data: HeadacheEntryDTO[];
+  pagination: PaginationMetadata;
+}
+
 export interface CreateHeadacheInput {
   date: string;
   painSeverity: number;

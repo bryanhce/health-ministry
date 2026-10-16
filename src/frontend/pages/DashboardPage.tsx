@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useDashboardPage } from '@/frontend/pages/useDashboardPage';
-import { Navbar } from '@/frontend/components/ui/Navbar';
+import { HeadacheSubHeader } from '@/frontend/components/headache/HeadacheSubHeader';
 import { DashboardStats } from '@/frontend/components/dashboard/DashboardStats';
 import { FrequencyCharts } from '@/frontend/components/dashboard/FrequencyCharts';
 import { EntriesFeed } from '@/frontend/components/headache/EntriesFeed';
@@ -12,6 +12,10 @@ import { HeadacheLogModal } from '@/frontend/components/headache/HeadacheLogModa
 export function DashboardPage() {
   const {
     entries,
+    totalCount,
+    hasMore,
+    isFetchingNextPage,
+    loadMore,
     stats,
     isLoading,
     isLogModalOpen,
@@ -26,9 +30,9 @@ export function DashboardPage() {
   } = useDashboardPage();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased">
-      {/* Top Header Navbar */}
-      <Navbar
+    <div className="flex-1 flex flex-col">
+      {/* Secondary Header for Headache Actions */}
+      <HeadacheSubHeader
         onOpenLogModal={handleOpenCreateModal}
         onSeedData={handleSeedData}
         isSeeding={isSeeding}
@@ -45,7 +49,11 @@ export function DashboardPage() {
         {/* Recent Headache Entries Feed */}
         <EntriesFeed
           entries={entries}
+          totalCount={totalCount}
+          hasMore={hasMore}
           isLoading={isLoading}
+          isLoadingMore={isFetchingNextPage}
+          onLoadMore={loadMore}
           onEdit={handleOpenEditModal}
           onDelete={handleDeleteEntry}
           onOpenLogModal={handleOpenCreateModal}

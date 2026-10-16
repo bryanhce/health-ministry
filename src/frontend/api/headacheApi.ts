@@ -2,6 +2,7 @@ import {
   CreateHeadacheInput,
   HeadacheEntryDTO,
   UpdateHeadacheInput,
+  PaginatedHeadacheEntriesResponse,
 } from '@/frontend/domain/headache.types';
 
 const API_ENDPOINTS = {
@@ -51,13 +52,24 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json();
 }
 
-export async function fetchEntries(): Promise<HeadacheEntryDTO[]> {
-  const res = await fetch(API_ENDPOINTS.ENTRIES, {
+export async function fetchEntries(params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<PaginatedHeadacheEntriesResponse> {
+  const query = new URLSearchParams();
+  if (params?.limit !== undefined) {
+    query.set('limit', params.limit.toString());
+  }
+  if (params?.offset !== undefined) {
+    query.set('offset', params.offset.toString());
+  }
+
+  const url = query.toString() ? `${API_ENDPOINTS.ENTRIES}?${query.toString()}` : API_ENDPOINTS.ENTRIES;
+  const res = await fetch(url, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  const json = await handleResponse<{ data: HeadacheEntryDTO[] }>(res);
-  return json.data;
+  return handleResponse<PaginatedHeadacheEntriesResponse>(res);
 }
 
 export async function fetchEntryById(id: string): Promise<HeadacheEntryDTO> {

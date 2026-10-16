@@ -6,6 +6,10 @@ import { CreateHeadacheInput, HeadacheEntryDTO } from '@/frontend/domain/headach
 export function useDashboardPage() {
   const {
     entries,
+    totalCount,
+    hasMore,
+    isFetchingNextPage,
+    loadMore,
     isLoading: isLoadingEntries,
     createEntry,
     updateEntry,
@@ -57,6 +61,10 @@ export function useDashboardPage() {
 
   return {
     entries,
+    totalCount,
+    hasMore,
+    isFetchingNextPage,
+    loadMore,
     stats,
     isLoading: isLoadingEntries || isLoadingStats,
     isLogModalOpen,

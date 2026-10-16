@@ -77,6 +77,7 @@ export function HeadacheLogModal(props: HeadacheLogModalProps) {
           label="Date of Episode"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          className="cursor-pointer [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_invert(1)]"
           required
         />
 

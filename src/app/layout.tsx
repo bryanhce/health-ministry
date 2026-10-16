@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import '@/app/globals.css';
 import { Providers } from '@/app/providers';
+import { Navbar } from '@/frontend/components/ui/Navbar';
 
 export const metadata: Metadata = {
   title: 'Health Ministry | Headache & Migraine Analytics',
@@ -29,7 +30,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-slate-50 dark:bg-slate-950 min-h-screen text-slate-900 dark:text-slate-100 antialiased selection:bg-teal-500 selection:text-white">
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <div className="flex-1 flex flex-col">{children}</div>
+          </div>
+        </Providers>
       </body>
     </html>
   );
