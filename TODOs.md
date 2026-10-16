@@ -1,0 +1,4 @@
+- remove SQLite database
+- medications page (active and archive ie what ive eaten in the past)
+- graph should show more than last 3 months
+- deploy app

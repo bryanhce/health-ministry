@@ -18,6 +18,8 @@ export class DashboardController {
         return NextResponse.json(error.toJSON(), { status: error.statusCode });
       }
 
+      console.error('[DashboardController] Unexpected error in getStats:', error);
+
       const message = error instanceof Error ? error.message : 'An unexpected error occurred';
       return NextResponse.json(
         {

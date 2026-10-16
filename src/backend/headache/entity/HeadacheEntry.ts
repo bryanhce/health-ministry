@@ -12,7 +12,6 @@ export class HeadacheEntry {
 
 export const HeadacheEntrySchema = new EntitySchema<HeadacheEntry>({
   name: 'HeadacheEntry',
-  target: HeadacheEntry,
   tableName: 'headache_entries',
   columns: {
     id: {

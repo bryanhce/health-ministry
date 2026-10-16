@@ -48,7 +48,7 @@ export class HeadacheController {
         { status: HTTP_STATUS.OK },
       );
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'list');
     }
   }
 
@@ -58,7 +58,7 @@ export class HeadacheController {
       const entry = await this.service.getEntryById(parsedId);
       return NextResponse.json({ data: entry }, { status: HTTP_STATUS.OK });
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'getById');
     }
   }
 
@@ -69,7 +69,7 @@ export class HeadacheController {
       const created = await this.service.createEntry(validatedData);
       return NextResponse.json({ data: created }, { status: HTTP_STATUS.CREATED });
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'create');
     }
   }
 
@@ -81,7 +81,7 @@ export class HeadacheController {
       const updated = await this.service.updateEntry(parsedId, validatedData);
       return NextResponse.json({ data: updated }, { status: HTTP_STATUS.OK });
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'update');
     }
   }
 
@@ -91,7 +91,7 @@ export class HeadacheController {
       await this.service.deleteEntry(parsedId);
       return new NextResponse(null, { status: HTTP_STATUS.NO_CONTENT });
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'delete');
     }
   }
 
@@ -106,11 +106,11 @@ export class HeadacheController {
         { status: HTTP_STATUS.CREATED },
       );
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(error, 'seed');
     }
   }
 
-  private handleError(error: unknown): NextResponse {
+  private handleError(error: unknown, context?: string): NextResponse {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
@@ -127,6 +127,8 @@ export class HeadacheController {
     if (error instanceof AppError) {
       return NextResponse.json(error.toJSON(), { status: error.statusCode });
     }
+
+    console.error(`[HeadacheController] Unexpected error${context ? ` in ${context}` : ''}:`, error);
 
     const message = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
