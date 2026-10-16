@@ -1,5 +1,5 @@
 import { IHeadacheRepository } from '@/backend/headache/repository/IHeadacheRepository';
-import { TypeORMHeadacheRepository } from '@/backend/headache/repository/TypeORMHeadacheRepository';
+import { DynamoDBHeadacheRepository } from '@/backend/headache/repository/DynamoDBHeadacheRepository';
 import { HeadacheEntry } from '@/backend/headache/entity/HeadacheEntry';
 
 export interface DashboardStatsResult {
@@ -43,7 +43,7 @@ export class DashboardService {
   private repository: IHeadacheRepository;
 
   constructor(repository?: IHeadacheRepository) {
-    this.repository = repository ?? new TypeORMHeadacheRepository();
+    this.repository = repository ?? new DynamoDBHeadacheRepository();
   }
 
   async getDashboardStats(): Promise<DashboardStatsResult> {

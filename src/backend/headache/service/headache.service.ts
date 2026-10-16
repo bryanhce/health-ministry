@@ -1,5 +1,5 @@
 import { IHeadacheRepository } from '@/backend/headache/repository/IHeadacheRepository';
-import { TypeORMHeadacheRepository } from '@/backend/headache/repository/TypeORMHeadacheRepository';
+import { DynamoDBHeadacheRepository } from '@/backend/headache/repository/DynamoDBHeadacheRepository';
 import {
   CreateHeadacheDTO,
   UpdateHeadacheDTO,
@@ -12,7 +12,7 @@ export class HeadacheService {
   private repository: IHeadacheRepository;
 
   constructor(repository?: IHeadacheRepository) {
-    this.repository = repository ?? new TypeORMHeadacheRepository();
+    this.repository = repository ?? new DynamoDBHeadacheRepository();
   }
 
   async getAllEntries(): Promise<HeadacheEntry[]> {

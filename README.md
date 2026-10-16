@@ -2,7 +2,7 @@
 
 **Health Ministry** is a modern, mobile-first health & symptom tracking application dedicated to headache and migraine logging, duration analytics, and 3-month frequency insights.
 
-Built with **Next.js 15 (App Router)**, **TypeScript**, **TypeORM**, **PostgreSQL** (with zero-config in-memory fallback via `pg-mem`), **Tailwind CSS v4**, **TanStack Query**, and **Recharts**.
+Built with **Next.js 15 (App Router)**, **TypeScript**, **Amazon DynamoDB** (AWS SDK v3 Document Client), **Tailwind CSS v4**, **TanStack Query**, and **Recharts**.
 
 ---
 
@@ -13,11 +13,10 @@ This project strictly adheres to **Domain-Driven Design (DDD)** with clean separ
 ```
 src/
 ├── backend/                       # BACKEND DOMAIN LAYER
-│   ├── config/                    # TypeORM DataSource singleton & fallback
 │   ├── shared/errors/             # Custom domain error classes & status codes
 │   ├── headache/                  # Headache Bounded Context
-│   │   ├── entity/                # TypeORM Entity & Schema
-│   │   ├── repository/            # Repository pattern (IHeadacheRepository & TypeORM implementation)
+│   │   ├── entity/                # Pure TypeScript Domain Entity (HeadacheEntry)
+│   │   ├── repository/            # Repository pattern (IHeadacheRepository & DynamoDB implementation)
 │   │   ├── service/               # Core business logic, validations, realistic 90-day seeder
 │   │   └── controller/            # Zod validation schemas & HTTP controller
 │   └── dashboard/                 # Analytics Bounded Context
@@ -65,7 +64,7 @@ src/
     - **9–10**: Debilitating (Crimson Red)
   - Quick Duration Presets (+30m, +1h, +2h, +4h) alongside custom hour/minute pickers.
   - Responsive Card Feed on mobile preventing horizontal scroll; desktop table view on $\ge 768\text{px}$.
-  - **Backend-Driven Pagination**: Server-side pagination via TypeORM `findAndCount` (`limit` & `offset`), wired via TanStack Query `useInfiniteQuery` with a clean "Load More" button.
+  - **Backend-Driven Pagination**: Server-side pagination via DynamoDB repository (`limit` & `offset`), wired via TanStack Query `useInfiniteQuery` with a clean "Load More" button.
 - **3-Month Clinical & Lifestyle Analytics**:
   - 3-Month average pain severity score with severity badge positioned clearly beneath the KPI value.
   - Average episode duration.
@@ -84,19 +83,29 @@ src/
 ### Prerequisites
 - Node.js $\ge 18$ (Tested on Node.js 23)
 - npm $\ge 9$
+- DynamoDB endpoint accessible (hosted dev DynamoDB server or AWS DynamoDB)
 
 ### Installation
 ```bash
 npm install
 ```
 
-### Environment Variables (Optional)
-By default, the application runs with an **in-memory PostgreSQL database (`pg-mem`)**, enabling instant, zero-configuration local development and testing without needing a local PostgreSQL server.
+### Environment Variables
+Configure the required DynamoDB connection parameters in `.env.local` or your environment:
 
-To connect to a persistent PostgreSQL instance, set `DATABASE_URL` in `.env.local`:
 ```env
-DATABASE_URL=postgres://username:password@localhost:5432/health_ministry
+# Required: Hosted dev DynamoDB server or AWS DynamoDB endpoint
+DYNAMODB_ENDPOINT=https://your-hosted-dynamodb-endpoint
+
+# Optional configuration
+DYNAMODB_TABLE_NAME=headache_entries
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
 ```
+
+> [!IMPORTANT]
+> `DYNAMODB_ENDPOINT` is strictly required. If omitted or empty, the application will fail fast on startup with a descriptive configuration error.
 
 ### Development Server
 ```bash
